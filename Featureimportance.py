@@ -42,7 +42,7 @@ class featureImportance:
                                                  num = self.intervals + 1)
             else:
                 self.cutpoints[i,] = np.quantile(x, np.linspace(0, 1, num = self.intervals + 1))
-            self.cutpoints[i, 1] = -float('inf')
+            self.cutpoints[i, 0] = -float('inf')
             self.cutpoints[i, self.intervals] = float('inf')
         
     #------------ calculate conditional mean and median ------------
