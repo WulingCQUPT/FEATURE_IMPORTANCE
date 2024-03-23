@@ -109,16 +109,7 @@ class featureImportance:
             # calculate variance
             feaimp[i] = np.sqrt(np.sum((c_mean[:,0] - m) ** 2 * c_mean[:,1]) / np.sum(c_mean[:,1]))
         return np.array(feaimp)
-    # #------------ 2 calculate feature importance based on variance-median ------------
-    # def cal_feaimp_var_median(self):
-    #     feaimp = [np.nan] * self.numfea
-    #     for i in range(self.numfea):
-    #         c_median = self.condi_median[i]
-    #         # calculate weighted median
-    #         m = np.sum(c_median[:,0] * c_median[:,1]) / np.sum(c_median[:,1])
-    #         # calculate variance
-    #         feaimp[i] = np.sqrt(np.sum((c_median[:,0] - m) ** 2 * c_median[:,1]) / np.sum(c_median[:,1]))
-    #     return np.array(feaimp)
+
     # calculate the index of r_i^MAD
     #------------ 21 calculate feature importance based on MeanAD_m_mean_C_Mean ------------
     def cal_feaimp_MeanAD_m_mean_C_Mean(self):
@@ -141,71 +132,6 @@ class featureImportance:
             # calculate mean of absolute deviation
             feaimp[i] = np.sum(np.abs(c_median[:,0] - m) * c_median[:,1]) / np.sum(c_median[:,1])
         return np.array(feaimp)
-    # #------------ 23 calculate feature importance based on MeanAD-m_median_C_Mean ------------
-    # def cal_feaimp_MeanAD_m_median_C_Mean(self):
-    #     feaimp = [np.nan] * self.numfea
-    #     for i in range(self.numfea):
-    #         c_mean = self.condi_mean[i]
-    #         # calculate median
-    #         m = np.median(np.repeat(c_mean[:,0] , c_mean[:,1], axis=1))
-    #         # calculate mean of absolute deviation
-    #         feaimp[i] = np.sum(np.abs(c_mean[:,0] - m) * c_mean[:,1]) / np.sum(c_mean[:,1])
-    #     return np.array(feaimp)
-    
-    # #------------ 24 calculate feature importance based on MeanAD-m_median_C_Median ------------
-    # def cal_feaimp_MeanAD_m_median_C_Median(self):
-    #     feaimp = [np.nan] * self.numfea
-    #     for i in range(self.numfea):
-    #         c_median = self.condi_median[i]
-    #         # calculate median
-    #         m = np.median(np.repeat(c_median[:,0] , c_median[:,1], axis=1))
-    #         # calculate mean of absolute deviation
-    #         feaimp[i] = np.sum(np.abs(c_median[:,0] - m) * c_median[:,1]) / np.sum(c_median[:,1])
-    #     return np.array(feaimp)
-    # #------------ 31 calculate feature importance based on MedianAD_m_mean_C_Mean ------------
-    # def cal_feaimp_MedianAD_m_mean_C_Mean(self):
-    #     feaimp = [np.nan] * self.numfea
-    #     for i in range(self.numfea):
-    #         c_mean = self.condi_mean[i]
-    #         # calculate weighted mean(Central mean)
-    #         m = np.sum(c_mean[:,0] * c_mean[:,1]) / np.sum(c_mean[:,1])
-    #         # calculate median of absolute deviation around the central mean
-    #         feaimp[i] = np.median(np.repeat(np.abs(c_mean[:,0]-m) , c_mean[:,1], axis=1))
-    #     return np.array(feaimp)
-    
-    # #------------ 32 calculate feature importance based on cal_feaimp_MedianAD_m_mean_C_Median ------------
-    # def cal_feaimp_MedianAD_m_mean_C_Median(self):
-    #     feaimp = [np.nan] * self.numfea
-    #     for i in range(self.numfea):
-    #         c_median = self.condi_median[i]
-    #         # calculate weighted mean(Central mean)
-    #         m = np.sum(c_median[:,0] * c_median[:,1]) / np.sum(c_median[:,1])
-    #         # calculate median of absolute deviation around the central mean
-    #         feaimp[i] = np.median(np.repeat(np.abs(c_median[:,0]-m) , c_median[:,1], axis=1))
-    #     return np.array(feaimp)
-    
-    # #------------ 33 calculate feature importance based on MedianAD_m_median_C_Mean ------------
-    # def cal_feaimp_MedianAD_m_median_C_Mean(self):
-    #     feaimp = [np.nan] * self.numfea
-    #     for i in range(self.numfea):
-    #         c_mean = self.condi_mean[i]
-    #         # calculate median
-    #         m = np.median(np.repeat(c_mean[:,0] , c_mean[:,1], axis=1))
-    #         # calculate median of absolute deviation around the central mean
-    #         feaimp[i] = np.median(np.repeat(np.abs(c_mean[:,0]-m) , c_mean[:,1], axis=1))
-    #     return np.array(feaimp)
-    
-    # #------------ 34 calculate feature importance based on MedianAD_m_median_C_Median ------------
-    # def cal_feaimp_MedianAD_m_median_C_Median(self):
-    #     feaimp = [np.nan] * self.numfea
-    #     for i in range(self.numfea):
-    #         c_median = self.condi_median[i]
-    #         # calculate median
-    #         m = np.median(np.repeat(c_median[:,0] , c_median[:,1], axis=1))
-    #         # calculate median of absolute deviation around the central mean
-    #         feaimp[i] = np.median(np.repeat(np.abs(c_median[:,0]-m) , c_median[:,1], axis=1))
-    #     return np.array(feaimp)    
-
 
 
 if __name__ == '__main__':
