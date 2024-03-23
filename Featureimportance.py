@@ -134,19 +134,7 @@ class featureImportance:
         return np.array(feaimp)
 
 
-if __name__ == '__main__':
-    # 例子 纯原始数据的重要性计算
-    from sklearn.datasets import fetch_california_housing
-    dataXY = fetch_california_housing()
-    X = dataXY.data
-    Y = dataXY.target
-    # X1 = pd.DataFrame(X,columns=load_boston().feature_names)
-    X1 = pd.DataFrame(X,columns= dataXY.feature_names).astype({'HouseAge':np.str_}) 
-    a  = featureImportance(X, Y, intervals = 30) 
-    a1  = featureImportance(X1, Y, intervals = 30)   
-    print(a.cal_feaimp_var_mean() - a1.cal_feaimp_var_mean())
-    # 例子 机器学习模型的重要性计算
-    
+if __name__ == '__main__': 
     from sklearn.model_selection import train_test_split
     import sklearn.datasets
     import xgboost
@@ -165,8 +153,7 @@ if __name__ == '__main__':
     # 下面这步对本实验不是必须的，但是机器学习建模效果的必要步骤
     X_train, X_test, Y_train, Y_test = train_test_split(X2, Y2, test_size=0.1, random_state=0)
     
-    # 数据建模
-    modelnum = 2 # 机器学习需要的模型
+    # 数据建模    
     modelNames = ['Ridge', 'KNN', 'Bayesian Ridge', 'Decision Tree', 'SVM', 'Lasso',
                       'Linear Regression', 'Neural Net', 'xgboost']
     print('------- Regression Models --------')
@@ -200,14 +187,17 @@ if __name__ == '__main__':
     
     Y_fun_reg = list()
     FI_fun_reg = list()
-    for i in range(len(regressionModels)-(len(regressionModels)-modelnum)):
-        clf = regressionModels[i]
+    for i in range(len(regressionModels)):
+        clf = regressionModels[i] 
         clf.fit(X_train, Y_train) #模型的训练
         Y_fun_reg.append(clf.predict) # 保存机器学习的模型
         print(modelNames[i], " : ", clf.score(X_train, Y_train))
         
-        # 计算变量重要性
-        Rs = featureImportance(X_train, clf.predict(X_train), intervals = 30)
+        # 计算变量重要性       
+        X_random =  shuffle_data(X_train)  # 此处的X_random 必须保证随机性，不能有相关性
+        # X_random = np.random.normal(loc=0.0, scale=1.0, size=X_train.shape)
+        Y_random = clf.predict(X_random)
+        Rs = featureImportance(X_random, Y_random, intervals = 30)
         rSD = Rs.cal_feaimp_var_mean()
         rMAD = Rs.cal_feaimp_MeanAD_m_mean_C_Mean()
         rMAD2 = Rs.cal_feaimp_MeanAD_m_mean_C_Median()
@@ -218,8 +208,12 @@ if __name__ == '__main__':
         print(ds.feature_names)
         print(FI_fun_reg)
     
-    FI_fun_reg_Matrix = pd.DataFrame(np.array(FI_fun_reg),columns= ds.feature_names)
-    FI_fun_reg_Matrix.index = np.repeat([['SD','MAD','MAD2']],modelnum,axis=0).flatten()
+    FI_fun_reg_Matrix = pd.DataFrame(np.array(FI_fun_reg),
+                                     columns= ds.feature_names,
+                                     index = np.repeat([['SD','MAD','MAD2']],i+1,axis=0).flatten())
+
+        
+        
         
         
 
