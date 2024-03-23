@@ -16,7 +16,10 @@ class featureImportance:
                  head_tail = (0, 1)): # 区间划分法中基于区间的
 
         self.X = pd.DataFrame(X)
-        self.Y = Y
+        if np.issubdtype(pd.Series(Y).dtype, np.number):
+            self.Y = Y # 输出变量为回归问题，正常处理
+        else:
+            self.Y = pd.Series(Y).factorize()[0] # 输出变量为分类问题是就因子化处理Y           
         self.intervals = intervals # the number of intervals
         self.numfea = X.shape[1] # the number of intervals
         self.seg = seg # 区间划分方法
@@ -94,7 +97,9 @@ class featureImportance:
                     self.condi_mean[i][j, 0] = 0
                     # conditional median
                     self.condi_median[i][j, 0] = 0
-
+    
+    # calculate the index of r_i^SD
+    #------------ 1 calculate feature importance based on variance-mean ------------
     def cal_feaimp_var_mean(self):
         feaimp = [np.nan] * self.numfea
         for i in range(self.numfea):
@@ -104,9 +109,107 @@ class featureImportance:
             # calculate variance
             feaimp[i] = np.sqrt(np.sum((c_mean[:,0] - m) ** 2 * c_mean[:,1]) / np.sum(c_mean[:,1]))
         return np.array(feaimp)
+    # #------------ 2 calculate feature importance based on variance-median ------------
+    # def cal_feaimp_var_median(self):
+    #     feaimp = [np.nan] * self.numfea
+    #     for i in range(self.numfea):
+    #         c_median = self.condi_median[i]
+    #         # calculate weighted median
+    #         m = np.sum(c_median[:,0] * c_median[:,1]) / np.sum(c_median[:,1])
+    #         # calculate variance
+    #         feaimp[i] = np.sqrt(np.sum((c_median[:,0] - m) ** 2 * c_median[:,1]) / np.sum(c_median[:,1]))
+    #     return np.array(feaimp)
+    # calculate the index of r_i^MAD
+    #------------ 21 calculate feature importance based on MeanAD_m_mean_C_Mean ------------
+    def cal_feaimp_MeanAD_m_mean_C_Mean(self):
+        feaimp = [np.nan] * self.numfea
+        for i in range(self.numfea):
+            c_mean = self.condi_mean[i]
+            # calculate weighted mean
+            m = np.sum(c_mean[:,0] * c_mean[:,1]) / np.sum(c_mean[:,1])
+            # calculate mean of absolute deviation
+            feaimp[i] = np.sum(np.abs(c_mean[:,0] - m) * c_mean[:,1]) / np.sum(c_mean[:,1])
+        return np.array(feaimp)
+    # calculate the index of r_i^MAD2
+    #------------ 22 calculate feature importance based on MeanAD_m_mean_C_Median ------------
+    def cal_feaimp_MeanAD_m_mean_C_Median(self):
+        feaimp = [np.nan] * self.numfea
+        for i in range(self.numfea):
+            c_median = self.condi_median[i]
+            # calculate weighted mean
+            m = np.sum(c_median[:,0] * c_median[:,1]) / np.sum(c_median[:,1])
+            # calculate mean of absolute deviation
+            feaimp[i] = np.sum(np.abs(c_median[:,0] - m) * c_median[:,1]) / np.sum(c_median[:,1])
+        return np.array(feaimp)
+    # #------------ 23 calculate feature importance based on MeanAD-m_median_C_Mean ------------
+    # def cal_feaimp_MeanAD_m_median_C_Mean(self):
+    #     feaimp = [np.nan] * self.numfea
+    #     for i in range(self.numfea):
+    #         c_mean = self.condi_mean[i]
+    #         # calculate median
+    #         m = np.median(np.repeat(c_mean[:,0] , c_mean[:,1], axis=1))
+    #         # calculate mean of absolute deviation
+    #         feaimp[i] = np.sum(np.abs(c_mean[:,0] - m) * c_mean[:,1]) / np.sum(c_mean[:,1])
+    #     return np.array(feaimp)
+    
+    # #------------ 24 calculate feature importance based on MeanAD-m_median_C_Median ------------
+    # def cal_feaimp_MeanAD_m_median_C_Median(self):
+    #     feaimp = [np.nan] * self.numfea
+    #     for i in range(self.numfea):
+    #         c_median = self.condi_median[i]
+    #         # calculate median
+    #         m = np.median(np.repeat(c_median[:,0] , c_median[:,1], axis=1))
+    #         # calculate mean of absolute deviation
+    #         feaimp[i] = np.sum(np.abs(c_median[:,0] - m) * c_median[:,1]) / np.sum(c_median[:,1])
+    #     return np.array(feaimp)
+    # #------------ 31 calculate feature importance based on MedianAD_m_mean_C_Mean ------------
+    # def cal_feaimp_MedianAD_m_mean_C_Mean(self):
+    #     feaimp = [np.nan] * self.numfea
+    #     for i in range(self.numfea):
+    #         c_mean = self.condi_mean[i]
+    #         # calculate weighted mean(Central mean)
+    #         m = np.sum(c_mean[:,0] * c_mean[:,1]) / np.sum(c_mean[:,1])
+    #         # calculate median of absolute deviation around the central mean
+    #         feaimp[i] = np.median(np.repeat(np.abs(c_mean[:,0]-m) , c_mean[:,1], axis=1))
+    #     return np.array(feaimp)
+    
+    # #------------ 32 calculate feature importance based on cal_feaimp_MedianAD_m_mean_C_Median ------------
+    # def cal_feaimp_MedianAD_m_mean_C_Median(self):
+    #     feaimp = [np.nan] * self.numfea
+    #     for i in range(self.numfea):
+    #         c_median = self.condi_median[i]
+    #         # calculate weighted mean(Central mean)
+    #         m = np.sum(c_median[:,0] * c_median[:,1]) / np.sum(c_median[:,1])
+    #         # calculate median of absolute deviation around the central mean
+    #         feaimp[i] = np.median(np.repeat(np.abs(c_median[:,0]-m) , c_median[:,1], axis=1))
+    #     return np.array(feaimp)
+    
+    # #------------ 33 calculate feature importance based on MedianAD_m_median_C_Mean ------------
+    # def cal_feaimp_MedianAD_m_median_C_Mean(self):
+    #     feaimp = [np.nan] * self.numfea
+    #     for i in range(self.numfea):
+    #         c_mean = self.condi_mean[i]
+    #         # calculate median
+    #         m = np.median(np.repeat(c_mean[:,0] , c_mean[:,1], axis=1))
+    #         # calculate median of absolute deviation around the central mean
+    #         feaimp[i] = np.median(np.repeat(np.abs(c_mean[:,0]-m) , c_mean[:,1], axis=1))
+    #     return np.array(feaimp)
+    
+    # #------------ 34 calculate feature importance based on MedianAD_m_median_C_Median ------------
+    # def cal_feaimp_MedianAD_m_median_C_Median(self):
+    #     feaimp = [np.nan] * self.numfea
+    #     for i in range(self.numfea):
+    #         c_median = self.condi_median[i]
+    #         # calculate median
+    #         m = np.median(np.repeat(c_median[:,0] , c_median[:,1], axis=1))
+    #         # calculate median of absolute deviation around the central mean
+    #         feaimp[i] = np.median(np.repeat(np.abs(c_median[:,0]-m) , c_median[:,1], axis=1))
+    #     return np.array(feaimp)    
+
 
 
 if __name__ == '__main__':
+    # 例子 纯原始数据的重要性计算
     from sklearn.datasets import fetch_california_housing
     dataXY = fetch_california_housing()
     X = dataXY.data
@@ -116,6 +219,85 @@ if __name__ == '__main__':
     a  = featureImportance(X, Y, intervals = 30) 
     a1  = featureImportance(X1, Y, intervals = 30)   
     print(a.cal_feaimp_var_mean() - a1.cal_feaimp_var_mean())
+    # 例子 机器学习模型的重要性计算
+    
+    from sklearn.model_selection import train_test_split
+    import sklearn.datasets
+    import xgboost
+    import sklearn
+    import sklearn.linear_model
+    import sklearn.ensemble
+    import sklearn.neural_network
+    import sklearn.discriminant_analysis
+    from sklearn.preprocessing import scale
+    
+    # 数据准备
+    ds = sklearn.datasets.load_diabetes()
+    # ds = sklearn.datasets.load_boston()
+    X2 = scale(ds.data) #标准化处理 （0-1区间，或正态标准化处理）
+    Y2 = ds.target
+    # 下面这步对本实验不是必须的，但是机器学习建模效果的必要步骤
+    X_train, X_test, Y_train, Y_test = train_test_split(X2, Y2, test_size=0.1, random_state=0)
+    
+    # 数据建模
+    modelnum = 2 # 机器学习需要的模型
+    modelNames = ['Ridge', 'KNN', 'Bayesian Ridge', 'Decision Tree', 'SVM', 'Lasso',
+                      'Linear Regression', 'Neural Net', 'xgboost']
+    print('------- Regression Models --------')
+    regressionModels = [sklearn.linear_model.Ridge(),
+                            sklearn.neighbors.KNeighborsRegressor(n_neighbors=5, weights='uniform'),
+                            sklearn.linear_model.BayesianRidge(),
+                            sklearn.tree.DecisionTreeRegressor(max_depth=5),
+                            sklearn.svm.SVR(kernel="linear"),
+                            sklearn.linear_model.Lasso(),
+                            sklearn.linear_model.LinearRegression(),
+                            sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(10,), activation='tanh',
+                                                                max_iter=2000, random_state=1),
+                            xgboost.XGBRegressor()]
+    
+    # print('------- Classification Models --------')
+    # modelNames = ["Logistic", "Nearest Neighbors", "Linear SVM", "RBF SVM",
+    #               "Decision Tree", "Random Forest", "Neural Net", "AdaBoost", "QDA", "xgboost"]
+    # classifiers = [
+    #     sklearn.linear_model.LogisticRegression(),
+    #     sklearn.neighbors.KNeighborsClassifier(3),
+    #     sklearn.svm.SVC(kernel="linear", C=0.025, probability=True),
+    #     sklearn.svm.SVC(gamma=2, C=1, probability=True),
+    #     # sklearn.gaussian_process.GaussianProcessClassifier(1.0 * sklearn.gaussian_process.kernels.RBF(1.0)),
+    #     sklearn.tree.DecisionTreeClassifier(max_depth=5),
+    #     sklearn.ensemble.RandomForestClassifier(max_depth=5, n_estimators=10, max_features=2),
+    #     sklearn.neural_network.MLPClassifier(alpha=1, hidden_layer_sizes=[20, 5, 3], activation='tanh'),
+    #     sklearn.ensemble.AdaBoostClassifier(),
+    #     # sklearn.naive_bayes.GaussianNB(),
+    #     sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis(),
+    #     xgboost.XGBClassifier()]
+    
+    Y_fun_reg = list()
+    FI_fun_reg = list()
+    for i in range(len(regressionModels)-(len(regressionModels)-modelnum)):
+        clf = regressionModels[i]
+        clf.fit(X_train, Y_train) #模型的训练
+        Y_fun_reg.append(clf.predict) # 保存机器学习的模型
+        print(modelNames[i], " : ", clf.score(X_train, Y_train))
+        
+        # 计算变量重要性
+        Rs = featureImportance(X_train, clf.predict(X_train), intervals = 30)
+        rSD = Rs.cal_feaimp_var_mean()
+        rMAD = Rs.cal_feaimp_MeanAD_m_mean_C_Mean()
+        rMAD2 = Rs.cal_feaimp_MeanAD_m_mean_C_Median()
+       
+        FI_fun_reg.append(rSD)
+        FI_fun_reg.append(rMAD)
+        FI_fun_reg.append(rMAD2)
+        print(ds.feature_names)
+        print(FI_fun_reg)
+    
+    FI_fun_reg_Matrix = pd.DataFrame(np.array(FI_fun_reg),columns= ds.feature_names)
+    FI_fun_reg_Matrix.index = np.repeat([['SD','MAD','MAD2']],modelnum,axis=0).flatten()
+        
+        
+
+        
             
 
 
