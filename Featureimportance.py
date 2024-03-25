@@ -10,6 +10,15 @@ Created on Sat Jan 13 18:24:58 2024
 import pandas as pd
 import numpy as np
 
+# 随机抽取X的元素形成新的X^
+def shuffle_data(X, sample_size=1000):
+    X_shuffle = np.zeros([sample_size, X.shape[1]])
+    np.random.seed(123)
+    for i in range(X.shape[1]):
+        X_shuffle[:, i] = np.random.choice(X[:, i], sample_size, replace=True)
+    return X_shuffle
+
+# 定义一个计算重要性的类
 class featureImportance:
     def __init__(self, X, Y, 
                  intervals = 30, seg = "quantile",  # 区间划分方法未提及
